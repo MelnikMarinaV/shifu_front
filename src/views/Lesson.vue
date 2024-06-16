@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import AudioTask from '../components/AudioTask.vue';
 
 const route = useRoute();
 const items = ref([]);
@@ -14,10 +15,10 @@ onMounted(async () => {
             throw new Error('Network response was not ok');
           }
           const data = await response.json();
-
           description.value = data.description;
           title.value = data.title;
           items.value = data.tasks;
+          console.log(items.value);
         } catch (error) {
           console.error('Error fetching items', error);
         }
@@ -33,11 +34,16 @@ onMounted(async () => {
     </div>
       <div v-html="description"></div>
       <div class="tasks">
-        <p class="task_instruction">Постарайтесь прочитать иероглифы самостоятельно. Затем откройте пининь и перевод. Запишите выражения своим голосом.</p>
+        <p class="task_instruction">Постарайтесь прочитать иероглифы самостоятельно. 
+          Затем откройте пининь и перевод. Запишите выражения своим голосом.</p>
+          <ul v-if="items.length">
+          <li v-for="item in items" :key="item.id">
+            <AudioTask :initial_text="item.title" :pinini="item.description" :task_id="item.id" />
+          </li>
+      </ul>
       </div>
     </div>
     </template>
-
 
 <style>
 * {
@@ -81,7 +87,9 @@ onMounted(async () => {
 .lesson-theory h2{
   text-align: center;
   font-size: 40px;
-  color: #CD071E;
+  background: linear-gradient(0deg, rgba(221,229,142,1) 0%, rgb(221, 27, 27) 21%, rgba(226, 226, 69, 0.775) 100%);
+  background-clip: text;
+  color: transparent;
 }
 .characters{
   color: #CD071E;
@@ -89,7 +97,6 @@ onMounted(async () => {
   padding: 2px 5px 2px 5px;
   border-radius: 10%;
 }
-
 .tasks{
   text-align: center;
 }
@@ -98,7 +105,7 @@ ol li{
   font-size: 25px;
   letter-spacing: 5px;
   margin-bottom: 10px;
-  color: #cd071ec1;
+  color: #CD071E;
   font-weight: bold;
 }
 
@@ -106,8 +113,9 @@ ol li{
   font-size: 20px;
   margin-bottom: 20px;
   font-weight: bold;
-  background: linear-gradient(0deg, rgba(221,229,142,1) 0%, rgb(225, 138, 138) 21%, rgba(226, 226, 69, 0.775) 100%);
+  background: linear-gradient(0deg, rgba(221,229,142,1) 0%, rgb(221, 27, 27) 21%, rgba(226, 226, 69, 0.775) 100%);
   background-clip: text;
   color: transparent;
+  text-align: center;
 }
 </style>
