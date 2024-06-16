@@ -22,6 +22,27 @@ function showPinini(){
   show.value = !show.value
 }
 
+async function playAudio() {
+  try {
+    const response = await fetch(`http://localhost:8001/get_audio/${props.task_id}`);
+
+    if (!response.ok) {
+      throw new Error(`Ошибка HTTP: ${response.status}`);
+    }
+
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    // Создаем аудио элемент 
+    const audio = new Audio(audioUrl);
+    audio.play(); 
+
+  } catch (error) {
+    console.error("Ошибка при воспроизведении аудио:", error);
+  }
+}
+
+
 </script>
 
 <template>
