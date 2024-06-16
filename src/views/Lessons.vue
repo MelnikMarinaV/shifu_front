@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue';
 
+
 const courses = ref([]);
 const lessons = ref([]);
 
@@ -85,7 +86,7 @@ h1{
 
 .lessons{
   margin: auto;
-  width: 50%;
+  width: 70%;
   height: 80%;
 }
 
@@ -97,7 +98,7 @@ ol {
   margin: 0 auto; 
   color: #CD071E;
   text-align: center;
-  font-size: large;
+  font-size: 20px;
 }
 
 li::before{
@@ -123,9 +124,9 @@ li:hover{
 .router-link{
   display: block;
   text-decoration: none;
-  color: black;
+  color: #CD071E;
   padding: 20px;
-  font-size: large;
+  font-size: 30px;
 }
   </style>
   
