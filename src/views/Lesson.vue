@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AudioTask from '../components/AudioTask.vue';
+import CardTask from '../components/CardTask.vue';
 
 const route = useRoute();
 const items = ref([]);
@@ -39,6 +40,12 @@ onMounted(async () => {
           <ul v-if="items.length">
           <li v-for="item in items" :key="item.id">
             <AudioTask :initial_text="item.title" :pinini="item.description" :task_id="item.id" />
+          </li>
+      </ul>
+      <p class="task_instruction">Сопоставьте иероглифы с их переводом</p>
+      <ul v-if="items.length">
+          <li v-for="item in items" :key="item.id">
+            <CardTask :initial_text="item.title" :pinini="item.description" :task_id="item.id" />
           </li>
       </ul>
       </div>
