@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue' // // Импорт функции "ref" для создания реактивных переменных
 
 const props = defineProps({
   initial_text: {
@@ -16,12 +16,19 @@ const props = defineProps({
   }
 })
 
-const show = ref(false)
+//Реактивные переменные
+const show = ref(false); //управление видимости пининь для каждого упражнения
+
+let mediaRecorder = null;
+let mediaStream = null;
+const chunks = ref([]);
+const recording = ref(false);
 
 function showPinini(){
   show.value = !show.value
 }
 
+//функция для воспроизведения произношения диктора
 async function playAudio() {
   try {
     const response = await fetch(`http://localhost:8001/get_audio/${props.task_id}`);
@@ -42,6 +49,50 @@ async function playAudio() {
   }
 }
 
+const toggleRecording = async () => {
+  if (recording.value) {
+    mediaRecorder.stop();
+    mediaStream.getTracks().forEach(track => track.stop());
+    recording.value = false;
+  } else {
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.ondataavailable = e => {
+        console.log(e.data);
+        chunks.value.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        // Запись остановлена
+        const blob = new Blob(chunks.value, { type: 'audio/mpeg' });
+        console.log(chunks.value);
+        const formData = new FormData();
+        formData.append('audio', blob, 'recording.mpeg');
+
+        try {
+          const response = await fetch(`http://localhost:8001/upload_audio/${props.task_id}`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          console.log('Audio uploaded successfully', data);
+        } catch (error) {
+          console.error('Error uploading audio', error);
+        }
+        chunks.value = [];
+      };
+      mediaRecorder.start();
+      recording.value = true;
+    } catch (err) {
+      console.error('Error accessing microphone', err);
+    }
+  }
+}
 
 </script>
 
