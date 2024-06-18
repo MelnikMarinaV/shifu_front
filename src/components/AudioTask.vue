@@ -31,49 +31,49 @@ function showPinini(){
 //функция для воспроизведения произношения диктора
 async function playAudio() {
   try {
-    const response = await fetch(`http://localhost:8001/get_audio/${props.task_id}`);
+    const response = await fetch(`http://localhost:8001/get_audio/${props.task_id}`);//Отправляет GET-запрос на сервер для получения аудио(запись диктора)
 
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }
-
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
+    //Обработка аудиоданных:
+    const audioBlob = await response.blob(); //Читает тело ответа сервера как Blob-объект 
+    const audioUrl = URL.createObjectURL(audioBlob);//Создает временный URL-адрес для Blob-объекта, чтобы использовать для доступа к аудиоданным, как если бы они были обычным файлом
 
     // Создаем аудио элемент 
     const audio = new Audio(audioUrl);
-    audio.play(); 
+    audio.play(); //воспроизведение
 
   } catch (error) {
     console.error("Ошибка при воспроизведении аудио:", error);
   }
 }
 
+//Запись звука с микрофона пользователя
 const toggleRecording = async () => {
-  if (recording.value) {
-    mediaRecorder.stop();
+  //проверка состояния записи
+  if (recording.value) {//если запись идет
+    mediaRecorder.stop();//останавливаем запись
     mediaStream.getTracks().forEach(track => track.stop());
     recording.value = false;
   } else {
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(mediaStream);
-      mediaRecorder.ondataavailable = e => {
-        console.log(e.data);
-        chunks.value.push(e.data);
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });//запрос доступа к микрофону
+      mediaRecorder = new MediaRecorder(mediaStream);//создаётся объект MediaRecorder, который отвечает за запись аудиоданных из mediaStream
+      mediaRecorder.ondataavailable = e => {// обработчик события ondataavailable срабатывает, когда MediaRecorder накапливает порцию данных
+        chunks.value.push(e.data);//хранит записанные фрагменты аудио
       };
       mediaRecorder.onstop = async () => {
         // Запись остановлена
-        const blob = new Blob(chunks.value, { type: 'audio/mpeg' });
-        console.log(chunks.value);
-        const formData = new FormData();
+        const blob = new Blob(chunks.value, { type: 'audio/mpeg' });//создаётся Blob из записанных аудио-фрагментов, хранящихся в массиве chunks.value
+        const formData = new FormData();//объект FormData, используется для отправки данных на сервер
         formData.append('audio', blob, 'recording.mpeg');
 
         try {
           const response = await fetch(`http://localhost:8001/upload_audio/${props.task_id}`, {
             method: 'POST',
             body: formData
-          });
+          });//выполняет асинхронный POST-запрос на сервер с отправкой formData, содержащего аудиофайл
 
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -84,7 +84,7 @@ const toggleRecording = async () => {
         } catch (error) {
           console.error('Error uploading audio', error);
         }
-        chunks.value = [];
+        chunks.value = [];//массив хранивший фрагменты записи очищается после отправки данных на сервер(каждая новая запись-отдельный ответ на задание)
       };
       mediaRecorder.start();
       recording.value = true;
@@ -98,9 +98,13 @@ const toggleRecording = async () => {
 
 <template>
   <div class = "task">
+    <!-- воспроизведение аудио-произношение выражения диктором -->
     <button id="play_audio" @click="playAudio"><img src="../pictures/play-button.png" alt=""></button>
+    <!-- отображение транскрипции(пининь) для каждого задания -->
     <button id="show_pinini" @click="showPinini"><img src="../pictures/show-button.png" alt=""></button>
+    <!-- отображение текста задания -->
     <p id="initial_text">{{ initial_text }}</p>
+    <!-- запись задания пользователем -->
     <button id="record_button" @click="toggleRecording"><img src="../pictures/record-button.png" alt=""></button>
     <br>
     <p v-show="show" id="pinini">{{ pinini }}</p>

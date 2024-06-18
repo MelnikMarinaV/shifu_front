@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router' //навигация по  урокам
 import { ref, onMounted } from 'vue';
 
 
@@ -8,16 +8,16 @@ const lessons = ref([]);
 
 onMounted(async () => {
   try {
-    const courseResponse = await fetch('http://localhost:8001/api/courses/');
+    const courseResponse = await fetch('http://localhost:8001/api/courses/'); //Отправляет GET-запрос на Django backend для получения списка курсов
     if (!courseResponse.ok) {
       throw new Error('Network courseResponse was not ok');
     }
     const courseData = await courseResponse.json();
-    courses.value = courseData.courses;
+    courses.value = courseData.courses; //Обновляет значение реактивной переменной courses, записывая в нее полученные курсы
 
     if(courses.value.length>0){
-        const courseId = courses.value[0].id;
-        const lessonsResponse = await fetch(`http://localhost:8001/api/lessons/${courseId}`);
+        const courseId = courses.value[0].id;//Получает ID первого курса из списка(HSK-1)
+        const lessonsResponse = await fetch(`http://localhost:8001/api/lessons/${courseId}`);// Отправляет GET-запрос на backend для получения уроков, относящихся к первому курсу
         
         if (!lessonsResponse.ok) {
         throw new Error('Network response was not ok for lessons');
@@ -37,12 +37,14 @@ onMounted(async () => {
       <div class="topnav">
         <img class="logo" src="../pictures/logo-no-background.png" alt="">
       </div>
-      <h1 v-for="course in courses" :key="course.id">
+      <!-- Отображает заголовок h1 для каждого курса из массива courses: на данный момент-1 курс HSK-1 -->
+      <h1 v-for="course in courses" :key="course.id"> 
         {{ course.title }} 
       </h1>
       <div class ="lessons">
         <ol v-if="lessons.length">
             <li v-for="lesson in lessons">
+              <!-- Создает ссылку на страницу урока с использованием RouterLink.  Атрибут :to  динамически формирует URL  на основе ID  урока -->
             <RouterLink :to="`/lesson/${lesson.id}`" class="router-link">{{ lesson.title }}</RouterLink>
             </li>
         </ol>

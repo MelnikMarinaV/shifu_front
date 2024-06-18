@@ -11,15 +11,14 @@ const title = ref('');
 
 onMounted(async () => {
         try {
-          const response = await fetch(`http://localhost:8001/api/tasks/${route.params.id}`);
+          const response = await fetch(`http://localhost:8001/api/tasks/${route.params.id}`);// отправляет GET-запрос на Django backend по адресу /api/tasks/, добавляя id урока из URL (route.params.id)
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          const data = await response.json();
-          description.value = data.description;
-          title.value = data.title;
-          items.value = data.tasks;
-          console.log(items.value);
+          const data = await response.json();//парсит JSON-ответ от сервера и сохраняет данные в переменную data
+          description.value = data.description;//теория урока
+          title.value = data.title;//заголовок урока
+          items.value = data.tasks;//задания к уроку
         } catch (error) {
           console.error('Error fetching items', error);
         }
@@ -31,23 +30,23 @@ onMounted(async () => {
 <template>
     <div class="lesson-wrapper">
     <div class="heading">
-      <h1>{{ title }}</h1>
+      <!-- отображение полученного заголовка -->
+      <h1>{{ title }}</h1> 
     </div>
+    <!-- Используется директива v-html, которая рендерит HTML-содержимое из переменной description-это теория урока -->
       <div v-html="description"></div>
       <div class="tasks">
         <p class="task_instruction">Постарайтесь прочитать иероглифы самостоятельно. 
           Затем откройте пининь и перевод. Запишите выражения своим голосом.</p>
           <ul v-if="items.length">
           <li v-for="item in items" :key="item.id">
+            <!-- Создаёт экземпляр компонента AudioTask для каждого задания. 
+            Передает в компонент AudioTask данные через props -->
             <AudioTask :initial_text="item.title" :pinini="item.description" :task_id="item.id" />
           </li>
       </ul>
       <p class="task_instruction">Сопоставьте иероглифы с их переводом</p>
-      <ul v-if="items.length">
-          <li v-for="item in items" :key="item.id">
-            <CardTask :initial_text="item.title" :pinini="item.description" :task_id="item.id" />
-          </li>
-      </ul>
+      <CardTask/>
       </div>
     </div>
     </template>
