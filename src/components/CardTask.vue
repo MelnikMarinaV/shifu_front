@@ -29,15 +29,16 @@ export default {
       },
       async fetchData() {
         try {
-          const response = await fetch(`http://localhost:8001/api/tasks/2`);
+          const lessonId = this.$route.params.id; // Получаем ID урока из параметров маршрута
+          const response = await fetch(`http://localhost:8001/api/tasks/${lessonId}`);
           const data = await response.json();
           this.initial_text = data.tasks;
-          this.translated_items=data.tasks;
+          this.translated_items = data.tasks;
           this.initial_order = this.initial_text.map(tasks => tasks.id);
         } catch (error) {
-            console.error('Ошибка при получении данных:', error);
-          }
-      },
+          console.error('Ошибка при получении данных:', error);
+      }
+    },
     }
 }
 </script>
@@ -53,6 +54,9 @@ export default {
           </ul>
         </div>
         <div class="translated-text">
+          <!-- директива v-model создает двустороннюю связь между компонентом draggable и массивом данных translated_items
+          т.е. порядок элементов в translated_items  будет определять порядок отображения элементов в  draggable.
+         Когда элементы в  draggable перетаскиваются, массив  translated_items  автоматически обновится, отражая новый порядок -->
           <draggable v-model="translated_items" item-key="id">
             <template #item="{ element }">
               <li class="translated-item">{{ element.description }}</li>

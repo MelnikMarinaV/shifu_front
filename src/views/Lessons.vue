@@ -65,6 +65,7 @@ onMounted(async () => {
     margin: 0;
     background: #CD071E;
     text-align: center;
+    padding-bottom: 50px;
 }
 .topnav{
     padding: 5vh;
